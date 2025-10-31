@@ -176,14 +176,19 @@ static int _YYTextKeyboardViewFrameObserverKey;
     if (!app) return nil;
     
     UIWindow *window = nil;
-    for (window in app.windows) {
+    NSMutableArray *windows = [NSMutableArray array];
+    if (@available(iOS 13.0, *)) {
+        for (UIWindowScene* windowScene in [UIApplication sharedApplication].connectedScenes){
+            [windows addObjectsFromArray:windowScene.windows];
+        }
+    }else{
+        [windows addObjectsFromArray:app.windows];
+    }
+    for (window in windows) {
         if ([self _getKeyboardViewFromWindow:window]) return window;
     }
-    window = app.keyWindow;
-    if ([self _getKeyboardViewFromWindow:window]) return window;
-    
     NSMutableArray *kbWindows = nil;
-    for (window in app.windows) {
+    for (window in windows) {
         NSString *windowName = NSStringFromClass(window.class);
         if ([self _systemVersion] < 9) {
             // UITextEffectsWindow
